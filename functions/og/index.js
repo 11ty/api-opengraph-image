@@ -14,8 +14,7 @@ async function handler(event, context) {
 
   try {
     // output to Function logs
-    console.log("Fetching", url);
-
+    
     let maxWidth = IMAGE_WIDTH;
     if(size === "small") {
       maxWidth = 375;
@@ -23,6 +22,8 @@ async function handler(event, context) {
       maxWidth = 650;
     }
 
+    console.log("Looking at ", url, maxWidth);
+    
     let og = new OgImageHtml(url);
     await og.fetch();
 
