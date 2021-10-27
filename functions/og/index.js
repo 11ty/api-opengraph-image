@@ -19,7 +19,7 @@ async function handler(event, context) {
     let og = new OgImageHtml(url);
     await og.fetch();
 
-    let stats = await og.getImage(IMAGE_WIDTH, FALLBACK_IMAGE_FORMAT);
+    let stats = await og.getImage(FALLBACK_IMAGE_FORMAT);
     let format = Object.keys(stats).pop();
     let stat = stats[format][0];
 
