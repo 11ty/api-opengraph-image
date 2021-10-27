@@ -8,7 +8,7 @@ const FALLBACK_IMAGE_FORMAT = "png";
 async function handler(event, context) {
   // e.g. /https%3A%2F%2Fwww.11ty.dev%2F/
   let pathSplit = event.path.split("/").filter(entry => !!entry);
-  let [url, imageFormat, size] = pathSplit;
+  let [url, size, imageFormat] = pathSplit;
 
   url = decodeURIComponent(url);
 
