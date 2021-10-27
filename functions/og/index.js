@@ -8,7 +8,7 @@ const FALLBACK_IMAGE_FORMAT = "png";
 async function handler(event, context) {
   // e.g. /https%3A%2F%2Fwww.11ty.dev%2F/
   let pathSplit = event.path.split("/").filter(entry => !!entry);
-  let [url, imageFormat] = pathSplit;
+  let [url, imageFormat, size] = pathSplit;
 
   url = decodeURIComponent(url);
 
@@ -16,10 +16,17 @@ async function handler(event, context) {
     // output to Function logs
     console.log("Fetching", url);
 
+    let maxWidth = IMAGE_WIDTH;
+    if(size === "small") {
+      maxWidth = 375;
+    } else if(size === "medium") {
+      maxWidth = 650;
+    }
+
     let og = new OgImageHtml(url);
     await og.fetch();
 
-    let stats = await og.getImage(imageFormat || FALLBACK_IMAGE_FORMAT);
+    let stats = await og.getImage(imageFormat || FALLBACK_IMAGE_FORMAT, maxWidth);
     let format = Object.keys(stats).pop();
     let stat = stats[format][0];
 

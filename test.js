@@ -10,7 +10,7 @@ const OgImageHtml = require("./functions/og/ogImageHtml");
   let og = new OgImageHtml(url);
   let html = await og.fetch();
 
-  let stats = await og.getImage("png");
+  let stats = await og.getImage("png", 600);
   let format = Object.keys(stats).pop();
   console.log( format, stats );
 
