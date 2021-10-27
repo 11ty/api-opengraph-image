@@ -1,8 +1,5 @@
-[functions]
-directory = "functions"
-
 [[redirects]]
 from = "/*"
-to = "/.netlify/builders/og"
-status = 200
+to = "https://v1.opengraph-image.11ty.dev/:splat"
+status = 301
 force = true
