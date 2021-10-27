@@ -13,9 +13,11 @@ URLs have the formats:
 
 ```
 /:url/
+/:url/:format/
 ```
 
 * `url` must be URI encoded.
+* `format` must by an output image format supported by [Eleventy Image](https://www.11ty.dev/docs/plugins/image/)
 
 ## Deploy your own
 

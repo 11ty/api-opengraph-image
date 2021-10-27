@@ -64,21 +64,19 @@ class OgImageHtml {
   }
 
   async getImage(fallbackImageFormat) {
-    let width = 1200;
     let images = this.findImageUrls();
     if(images.length) {
-      return this.optimizeImage(images[0], width, fallbackImageFormat)
+      return this.optimizeImage(images[0], fallbackImageFormat)
     }
   }
 
-  async optimizeImage(sharpInput, width, imageFormat) {
+  async optimizeImage(sharpInput, imageFormat) {
     // normalize format
     if(imageFormat && imageFormat === "svg+xml") {
       imageFormat = "svg";
     }
 
     let stats = await EleventyImage(sharpInput, {
-      widths: [width],
       formats: [imageFormat],
       dryRun: true,
     });
