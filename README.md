@@ -25,3 +25,10 @@ URLs have the formats:
 
 <a href="https://app.netlify.com/start/deploy?repository=https://github.com/11ty/api-opengraph-image"><img src="https://www.netlify.com/img/deploy/button.svg" alt="Deploy to Netlify"></a>
 
+## Demos
+
+<img src="https://v1.opengraph-image.11ty.dev/https%3A%2F%2Fwww.netlify.com/small/" alt="OpenGraph Image for netlify.com">
+
+<img src="https://v1.opengraph-image.11ty.dev/https%3A%2F%2Fwww.11ty.dev/small/" alt="OpenGraph Image for 11ty.dev">
+
+<img src="https://v1.opengraph-image.11ty.dev/https%3A%2F%2Fwww.zachleat.com/small/" alt="OpenGraph Image for zachleat.com">
