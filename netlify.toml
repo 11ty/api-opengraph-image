@@ -1,5 +1,5 @@
 [[redirects]]
 from = "/*"
-to = "https://v1.opengraph-image.11ty.dev/:splat"
+to = "https://v1.opengraph.11ty.dev/:splat"
 status = 301
 force = true
