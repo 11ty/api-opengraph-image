@@ -32,3 +32,15 @@ URLs have the formats:
 <img src="https://v1.opengraph.11ty.dev/https%3A%2F%2Fwww.11ty.dev/small/" alt="OpenGraph Image for 11ty.dev">
 
 <img src="https://v1.opengraph.11ty.dev/https%3A%2F%2Fwww.zachleat.com/small/" alt="OpenGraph Image for zachleat.com">
+
+### Advanced: Manual Cache Busting
+
+If the images aren’t updating at a high enough frequency you can pass in your own cache busting key using an underscore prefix `_` after your URL.
+
+This can be any arbitrary string tied to your unique build, here’s an example that uses today’s date.
+
+```
+/:url/_20210802/
+/:url/:size/_20210802/
+/:url/:size/:format/_20210802/
+```

@@ -12,9 +12,17 @@ async function handler(event, context) {
 
   url = decodeURIComponent(url);
 
+  // Manage your own frequency by using a _ prefix and then a hash buster string after your URL
+  // e.g. /https%3A%2F%2Fwww.11ty.dev%2F/_20210802/ and set this to today’s date when you deploy
+  if(size && size.startsWith("_")) {
+    size = undefined;
+  }
+  if(imageFormat && imageFormat.startsWith("_")) {
+    imageFormat = undefined;
+  }
+
   try {
     // output to Function logs
-    
     let maxWidth = IMAGE_WIDTH;
     if(size === "small") {
       maxWidth = 375;
