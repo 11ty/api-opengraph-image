@@ -1,12 +1,7 @@
 const OgImageHtml = require("./functions/og/ogImageHtml");
 
-(async function() {
-  // let url = "https://lynnandtonic.com";
-  let url = "https://www.netlify.com";
-  // let url = "https://www.zachleat.com";
-  // let url = "https://www.11ty.dev";
-  console.log( url );
-
+async function fetch(url) {
+  console.log( { url } );
   let og = new OgImageHtml(url);
   let html = await og.fetch();
 
@@ -15,4 +10,13 @@ const OgImageHtml = require("./functions/og/ogImageHtml");
   console.log( format, stats );
 
   // console.log( stats[format][0].buffer.toString() );
+}
+
+(async function() {
+  // fetch("https://lynnandtonic.com");
+  fetch("https://www.netlify.com");
+  fetch("https://www.zachleat.com");
+  fetch("https://www.11ty.dev");
+  // fetch("https://samtan.dev/");
+
 })();

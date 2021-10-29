@@ -64,10 +64,14 @@ class OgImageHtml {
   }
 
   async getImage(fallbackImageFormat, maxWidth) {
-    let images = this.findImageUrls();
+    let images = this.findImageUrls().map(url => {
+      return ""+ (new URL(url, this.url));
+    });
     if(images.length) {
       return this.optimizeImage(images[0], fallbackImageFormat, maxWidth)
     }
+
+    throw new Error(`No Open Graph images found for ${this.url}`);
   }
 
   async optimizeImage(sharpInput, imageFormat, maxWidth) {
