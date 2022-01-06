@@ -1,7 +1,6 @@
 const fetch = require("node-fetch");
 const cheerio = require("cheerio");
 const EleventyImage = require("@11ty/eleventy-img");
-const EleventyCache = require("@11ty/eleventy-cache-assets");
 
 class OgImageHtml {
   constructor(url) {
