@@ -1,3 +1,5 @@
+<p align="center"><img src="https://www.11ty.dev/img/logo-github.svg" width="200" height="200" alt="11ty Logo"></p>
+
 # Open Graph Image API
 
 A runtime service to return optimized Open Graph images from a URL. Works with:
