@@ -57,7 +57,7 @@ async function handler(event, context) {
 
     let imageUrls = await og.getImages();
     if(!imageUrls.length) {
-      return getErrorImage(`No Open Graph images found for ${url}`, "404", 60 * 60 * 24, cacheBuster);
+      return getErrorImage(`No Open Graph images found for ${url}`, 404, 60 * 60 * 24, cacheBuster);
     }
 
     // TODO: when requests to https://v1.screenshot.11ty.dev/ show an error (the default SVG image)
@@ -79,7 +79,7 @@ async function handler(event, context) {
     };
   } catch (error) {
     console.log("Error", error);
-    return getErrorImage(error.message, "200", 60 * 5, cacheBuster);
+    return getErrorImage(error.message, 200, 60 * 5, cacheBuster);
   }
 }
 
