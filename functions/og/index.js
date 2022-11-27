@@ -50,8 +50,8 @@ async function handler(event, context) {
       maxWidth = 650;
     }
 
-    console.log("Looking at ", url, maxWidth);
-    
+    console.log( {url, size, imageFormat, cacheBuster} );
+
     let og = new OgImageHtml(url);
     await og.fetch();
 

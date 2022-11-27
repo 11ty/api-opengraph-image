@@ -73,6 +73,7 @@ class OgImageHtml {
       widths: [maxWidth || "auto"],
       formats: [imageFormat],
       dryRun: true,
+      useCache: false,
     });
 
     return stats;
