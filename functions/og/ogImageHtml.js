@@ -62,19 +62,14 @@ class OgImageHtml {
     return results;
   }
 
-  async getImage(fallbackImageFormat, maxWidth) {
-    let images = this.findImageUrls().map(url => {
+  async getImages() {
+    return this.findImageUrls().map(url => {
       return ""+ (new URL(url, this.url));
     });
-    if(images.length) {
-      return this.optimizeImage(images[0], fallbackImageFormat, maxWidth)
-    }
-
-    throw new Error(`No Open Graph images found for ${this.url}`);
   }
 
-  async optimizeImage(sharpInput, imageFormat, maxWidth) {
-    let stats = await EleventyImage(sharpInput, {
+  async optimizeImage(imageUrl, imageFormat, maxWidth) {
+    let stats = await EleventyImage(imageUrl, {
       widths: [maxWidth || "auto"],
       formats: [imageFormat],
       dryRun: true,
