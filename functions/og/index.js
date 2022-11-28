@@ -4,12 +4,13 @@ const OgImageHtml = require("./ogImageHtml.js");
 const IMAGE_WIDTH = 1200;
 const IMAGE_HEIGHT = 630;
 const FALLBACK_IMAGE_FORMAT = "png";
+const NOT_FOUND_URL = "opengraph-not-found";
 
-function getErrorImage(message, statusCode, ttl, cacheBuster) {
+function getErrorImage(message, ttl, cacheBuster) {
   return {
     // We need to return 200 here or Firefox won’t display the image
     // HOWEVER a 200 means that if it times out on the first attempt it will stay the default image until the next build.
-    statusCode,
+    statusCode: 200,
     // HOWEVER HOWEVER, we can set a ttl of 60 which means that the image will be re-requested in 24 hours.
     ttl,
     headers: {
@@ -29,6 +30,10 @@ async function handler(event, context) {
   let [url, size, imageFormat, cacheBuster] = pathSplit;
 
   url = decodeURIComponent(url);
+
+  if(url.trim() === NOT_FOUND_URL) {
+    return getErrorImage(`No Open Graph images found.`, 60 * 60 * 24, cacheBuster);
+  }
 
   // Manage your own frequency by using a _ prefix and then a hash buster string after your URL
   // e.g. /https%3A%2F%2Fwww.11ty.dev%2F/_20210802/ and set this to today’s date when you deploy
@@ -57,7 +62,15 @@ async function handler(event, context) {
 
     let imageUrls = await og.getImages();
     if(!imageUrls.length) {
-      return getErrorImage(`No Open Graph images found for ${url}`, 404, 60 * 60 * 24, cacheBuster);
+      // Build functions *do* cache 404s (but not 50x) and browsers display 404s but do not trigger `onerror` for these
+      // So instead we redirect to another url that includes a suffix that we can use in an `<img onload>`
+      return {
+        statusCode: 302,
+        headers: {
+          "Location": `/${NOT_FOUND_URL}/`,
+          "x-cache-buster": cacheBuster,
+        }
+      };
     }
 
     // TODO: when requests to https://v1.screenshot.11ty.dev/ show an error (the default SVG image)
@@ -79,7 +92,7 @@ async function handler(event, context) {
     };
   } catch (error) {
     console.log("Error", error);
-    return getErrorImage(error.message, 200, 60 * 5, cacheBuster);
+    return getErrorImage(error.message, 60 * 5, cacheBuster);
   }
 }
 
