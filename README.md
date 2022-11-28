@@ -17,11 +17,13 @@ URLs have the formats:
 /:url/
 /:url/:size/
 /:url/:size/:format/
+/:url/:size/:format/onerror/
 ```
 
 * `url` must be URI encoded.
 * `size` (optional) can be `small` (375×_), `medium` (650×_), or `auto` (keep original width)
-* `format` must by an output image format supported by [Eleventy Image](https://www.11ty.dev/docs/plugins/image/)
+* `format` must by an output image format supported by [Eleventy Image](https://www.11ty.dev/docs/plugins/image/) (`auto` is supported)
+* `error` (the string value `onerror`) will return empty content (no default image) if an opengraph image is not found at the target URL. This will trigger `<img onerror>` in the browser which you can handle on the client.
 
 ## Deploy your own
 
