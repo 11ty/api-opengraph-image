@@ -4,7 +4,7 @@ const OgImageHtml = require("./ogImageHtml.js");
 const IMAGE_WIDTH = 1200;
 const IMAGE_HEIGHT = 630;
 const FALLBACK_IMAGE_FORMAT = "png";
-const ERROR_URL_SEGMENT = "error";
+const ERROR_URL_SEGMENT = "onerror";
 
 function getErrorImage(message, statusCode, ttl, cacheBuster) {
   let obj = {
