@@ -65,10 +65,9 @@ async function handler(event, context) {
       // Build functions *do* cache 404s (but not 50x) and browsers display 404s but do not trigger `onerror` for these
       // So instead we redirect to another url that includes a suffix that we can use in an `<img onload>`
       return {
-        statusCode: 302,
+        statusCode: 301,
         headers: {
-          "Location": `/${NOT_FOUND_URL}/`,
-          "x-cache-buster": cacheBuster,
+          "Location": `/${NOT_FOUND_URL}/`
         }
       };
     }
