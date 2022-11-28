@@ -53,6 +53,7 @@ async function handler(event, context) {
       size = undefined;
     } else if(size === ERROR_URL_SEGMENT) {
       returnEmptyImageWhenNotFound = true;
+      size = undefined;
     }
   }
 
@@ -62,6 +63,7 @@ async function handler(event, context) {
       imageFormat = undefined;
     } else if(imageFormat === ERROR_URL_SEGMENT) {
       returnEmptyImageWhenNotFound = true;
+      imageFormat = undefined;
     }
   }
 
