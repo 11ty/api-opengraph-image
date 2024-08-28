@@ -1,5 +1,4 @@
-import fetch from "node-fetch";
-import cheerio from "cheerio";
+import * as cheerio from 'cheerio';
 import EleventyImage from "@11ty/eleventy-img";
 
 class OgImageHtml {
@@ -27,6 +26,7 @@ class OgImageHtml {
     this.body = body;
 
     this.$ = cheerio.load(body);
+
     return body;
   }
 
@@ -36,30 +36,39 @@ class OgImageHtml {
   }
 
   findImageUrls() {
-    let results = [];
-    let ogImageSecure = this.$("meta[name='og:image:secure_url']").attr("content");
+    let results = new Set();
 
-    if(ogImageSecure) {
-      results.push(ogImageSecure);
+    let cases = [
+      ["meta[name='og:image:secure_url']", "content"],
+      ["meta[name='og:image']", "content"],
+      ["meta[property='og:image']", "content"], // not sure if this is standardized
+      ["meta[name='twitter:image']", "content"],
+
+      // YouTube specific: https://github.com/11ty/api-opengraph-image/issues/6
+      ["link[rel='image_src']", "href"],
+      ["link[itemprop='thumbnailUrl']", "href"],
+      // ["link[itemprop='url']", "href"],
+    ];
+
+    for(let [selector, attribute] of cases) {
+      let imageUrl = this.$(selector).attr(attribute);
+      if(imageUrl) {
+        results.add(imageUrl);
+      }
     }
 
-    let ogImage = this.$("meta[name='og:image']").attr("content");
-    if(ogImage) {
-      results.push(ogImage);
+    // More YouTube specific stuff: https://github.com/11ty/api-opengraph-image/issues/6
+    let u = new URL(this.url);
+    if(results.size === 0 && u.host.endsWith(".youtube.com")) {
+      // Sizes borrowed from https://paulirish.github.io/lite-youtube-embed/testpage/poster-image-availability.html
+      // let sizes = ["maxresdefault", "sddefault", "hqdefault", "mqdefault", "default"];
+      let videoId = u.searchParams.get("v");
+      if(videoId) {
+        results.add(`https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`);
+      }
     }
 
-    // not sure if this is standardized or not
-    let ogImageProp = this.$("meta[property='og:image']").attr("content");
-    if(ogImageProp) {
-      results.push(ogImageProp);
-    }
-
-    let twitterImage = this.$("meta[name='twitter:image']").attr("content");
-    if(twitterImage) {
-      results.push(twitterImage);
-    }
-
-    return results;
+    return Array.from(results);
   }
 
   async getImages() {
