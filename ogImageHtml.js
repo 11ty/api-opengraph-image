@@ -21,12 +21,7 @@ class OgImageHtml {
   }
 
   async fetch() {
-    let response = await fetch(this.url, {
-      referrer: "",
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
-      }
-    });
+    let response = await fetch(this.url);
     let body = await response.text();
     this.body = body;
 
@@ -73,7 +68,6 @@ class OgImageHtml {
       }
     }
 
-    console.log( "Found:", Array.from(results) );
     return Array.from(results);
   }
 
