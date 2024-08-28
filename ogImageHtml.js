@@ -59,14 +59,16 @@ class OgImageHtml {
 
     // More YouTube specific stuff: https://github.com/11ty/api-opengraph-image/issues/6
     let u = new URL(this.url);
-    if(results.size === 0 && u.host.endsWith(".youtube.com")) {
+    if(results.size === 0 && (u.host.endsWith(".youtube.com") || u.host === "youtube.com")) {
       // Sizes borrowed from https://paulirish.github.io/lite-youtube-embed/testpage/poster-image-availability.html
       // let sizes = ["maxresdefault", "sddefault", "hqdefault", "mqdefault", "default"];
       let videoId = u.searchParams.get("v");
       if(videoId) {
+        // results.add(`https://i.ytimg.com/vi_webp/${videoId}/maxresdefault.webp`);
         results.add(`https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`);
       }
     }
+    console.log( "Found:", Array.from(results) );
 
     return Array.from(results);
   }
