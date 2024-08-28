@@ -22,11 +22,13 @@ class OgImageHtml {
 
   async fetch() {
     let response = await fetch(this.url, {
+      referrer: "",
       headers: {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
       }
     });
     let body = await response.text();
+    console.log( body.split("<meta ").slice(1).map(line => `<meta ${line.slice(0, 200)}`) );
     this.body = body;
 
     this.$ = cheerio.load(body);
