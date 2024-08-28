@@ -1,5 +1,4 @@
-import fetch from "node-fetch";
-import cheerio from "cheerio";
+import * as cheerio from 'cheerio';
 import EleventyImage from "@11ty/eleventy-img";
 
 class OgImageHtml {
@@ -22,7 +21,11 @@ class OgImageHtml {
   }
 
   async fetch() {
-    let response = await fetch(this.url);
+    let response = await fetch(this.url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
+      }
+    });
     let body = await response.text();
     this.body = body;
 
