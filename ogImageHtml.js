@@ -47,27 +47,29 @@ class OgImageHtml {
       // YouTube specific: https://github.com/11ty/api-opengraph-image/issues/6
       ["link[rel='image_src']", "href"],
       ["link[itemprop='thumbnailUrl']", "href"],
-      // ["link[itemprop='url']", "href"],
     ];
 
     for(let [selector, attribute] of cases) {
       let imageUrl = this.$(selector).attr(attribute);
       if(imageUrl) {
         results.add(imageUrl);
+        continue;
       }
     }
 
     // More YouTube specific stuff: https://github.com/11ty/api-opengraph-image/issues/6
     let u = new URL(this.url);
-    if(results.size === 0 && (u.host.endsWith(".youtube.com") || u.host === "youtube.com")) {
+    if(u.host.endsWith(".youtube.com") || u.host === "youtube.com") {
       // Sizes borrowed from https://paulirish.github.io/lite-youtube-embed/testpage/poster-image-availability.html
       // let sizes = ["maxresdefault", "sddefault", "hqdefault", "mqdefault", "default"];
       let videoId = u.searchParams.get("v");
       if(videoId) {
-        // results.add(`https://i.ytimg.com/vi_webp/${videoId}/maxresdefault.webp`);
+        results.add(`https://i.ytimg.com/vi_webp/${videoId}/maxresdefault.webp`);
         results.add(`https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`);
+        results.add(`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`);
       }
     }
+
     console.log( "Found:", Array.from(results) );
 
     return Array.from(results);

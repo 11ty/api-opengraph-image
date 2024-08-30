@@ -137,7 +137,11 @@ export async function GET(request, context) {
 
     // TODO: when requests to https://v1.screenshot.11ty.dev/ show an error (the default SVG image)
     // this service should error with _that_ image and the error message headers.
-    let stats = await og.optimizeImage(imageUrls[0], imageFormat || FALLBACK_IMAGE_FORMAT, maxWidth);
+
+    let stats = await Promise.any(imageUrls.map(url => {
+      return og.optimizeImage(url, imageFormat || FALLBACK_IMAGE_FORMAT, maxWidth);
+    }));
+
     let format = Object.keys(stats).pop();
     let stat = stats[format][0];
 
