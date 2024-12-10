@@ -1,6 +1,8 @@
 import * as cheerio from 'cheerio';
 import EleventyImage from "@11ty/eleventy-img";
 
+const USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Safari/605.1.15";
+
 class OgImageHtml {
   constructor(url) {
     this.url = url;
@@ -23,7 +25,7 @@ class OgImageHtml {
   async fetch() {
     let response = await fetch(this.url, {
       headers: {
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Safari/605.1.15",
+        "User-Agent": USER_AGENT,
       }
     });
     let body = await response.text();
@@ -70,7 +72,7 @@ class OgImageHtml {
       if(videoId) {
         results.add(`https://i.ytimg.com/vi_webp/${videoId}/maxresdefault.webp`);
         results.add(`https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`);
-        results.add(`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`);
+        // results.add(`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`);
       }
     }
 
@@ -91,6 +93,11 @@ class OgImageHtml {
       formats: [imageFormat],
       dryRun: true,
       useCache: false,
+      cacheOptions: {
+        headers: {
+          "User-Agent": USER_AGENT,
+        }
+      }
     });
 
     return stats;
