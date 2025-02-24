@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "A runtime service to extract avatar images from the HTML on a web site.",
   "scripts": {
-    "test": "node test/test.js",
     "start": "npx vercel dev"
   },
   "type": "module",
@@ -24,10 +23,10 @@
   },
   "homepage": "https://github.com/11ty/indieweb-avatar#readme",
   "dependencies": {
-    "@11ty/eleventy-img": "5.0.0-beta.6",
+    "@11ty/eleventy-img": "^6.0.1",
     "cheerio": "^1.0.0"
   },
   "devDependencies": {
-    "vercel": "^37.1.2"
+    "vercel": "^41.2.0"
   }
 }

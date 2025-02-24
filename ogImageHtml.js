@@ -75,8 +75,9 @@ class OgImageHtml {
         // results.add(`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`);
       }
     }
+    // TODO youtu.be style https://github.com/11ty/api-opengraph-image/issues/8
 
-    console.log( "Found:", Array.from(results) );
+    console.log( "Found urls:", Array.from(results) );
 
     return Array.from(results);
   }

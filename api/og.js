@@ -116,7 +116,7 @@ export async function GET(request, context) {
       maxWidth = 650;
     }
 
-    console.log( {url, size, imageFormat, cacheBuster} );
+    console.log( "Request", {url, size, imageFormat, cacheBuster} );
 
     // short circuit circular requests
     if(isFullUrl(url) && (new URL(url)).hostname.endsWith(".opengraph.11ty.dev")) {
@@ -138,14 +138,29 @@ export async function GET(request, context) {
     // TODO: when requests to https://v1.screenshot.11ty.dev/ show an error (the default SVG image)
     // this service should error with _that_ image and the error message headers.
 
-    let stats = await Promise.any(imageUrls.map(url => {
+    let settled = await Promise.allSettled(imageUrls.map(url => {
       return og.optimizeImage(url, imageFormat || FALLBACK_IMAGE_FORMAT, maxWidth);
     }));
 
-    let format = Object.keys(stats).pop();
-    let stat = stats[format][0];
+    let promises = settled.filter(p => {
+      if(p.status === "fulfilled" && p.value) {
+        return Object.keys(p.value).length > 0;
+      }
+      return false;
+    }).map(p => {
+      let format = Object.keys(p.value).pop();
+      return p.value[format][0];
+    }).sort((a, b) => {
+      // descending
+      return b.width - a.width;
+    });
 
-    console.log( "Found match", url, format, stat );
+    if(promises.length === 0) {
+      throw new Error("No image found.");
+    }
+
+    let stat = promises[0];
+    console.log( "Found match", url, { format: stat.format, width: stat.width, height: stat.height, size: stat.size } );
 
     return new Response(stat.buffer, {
       code: 200,
