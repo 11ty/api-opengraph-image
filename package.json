@@ -1,7 +1,7 @@
 {
-  "name": "eleventy-api-indieweb-avatar",
+  "name": "@11ty/api-opengraph-image",
   "version": "1.0.0",
-  "description": "A runtime service to extract avatar images from the HTML on a web site.",
+  "description": "A runtime service to extract OpenGraph images from the HTML on a web site.",
   "scripts": {
     "start": "npx vercel dev"
   },
@@ -10,7 +10,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/11ty/indieweb-avatar.git"
+    "url": "git+https://github.com/11ty/api-opengraph-image.git"
   },
   "author": {
     "name": "Zach Leatherman",
@@ -19,9 +19,9 @@
   },
   "keywords": [],
   "bugs": {
-    "url": "https://github.com/11ty/indieweb-avatar/issues"
+    "url": "https://github.com/11ty/api-opengraph-image/issues"
   },
-  "homepage": "https://github.com/11ty/indieweb-avatar#readme",
+  "homepage": "https://github.com/11ty/api-opengraph-image#readme",
   "dependencies": {
     "@11ty/eleventy-img": "^6.0.1",
     "cheerio": "^1.0.0"
