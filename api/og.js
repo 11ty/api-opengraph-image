@@ -156,7 +156,11 @@ export async function GET(request, context) {
     });
 
     if(promises.length === 0) {
-      throw new Error("No image found.");
+      // Had a URL but was invalid/corrupt/missing
+      if(returnEmptyImageWhenNotFound) {
+        return getErrorImage("Eligible images found, but were invalid.", ONE_DAY);
+      }
+      return getLogoImage("Eligible images found, but were invalid.", ONE_DAY);
     }
 
     let stat = promises[0];
