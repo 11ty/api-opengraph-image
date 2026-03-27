@@ -55,7 +55,7 @@ function getErrorImage(message, ttl) {
     // Will try again after TTL
     status: 200,
     headers: {
-      "content-type": "application/json",
+      "content-type": "image/svg+xml",
       "x-11ty-error-message": message,
       "cache-control": `public, s-maxage=${ttl}, stale-while-revalidate=${ONE_DAY}`
     }
