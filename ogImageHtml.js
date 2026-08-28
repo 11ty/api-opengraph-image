@@ -1,7 +1,15 @@
+import os from "node:os";
+import path from "node:path";
 import * as cheerio from 'cheerio';
 import EleventyImage from "@11ty/eleventy-img";
 
 const USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Safari/605.1.15";
+
+// `os.tmpdir()` is `/tmp` on Vercel (the only writable path there) and a per-user
+// temp dir locally, so this needs no platform check. Ephemeral either way, so it
+// only helps warm instances — which is the point.
+const CACHE_DIRECTORY = path.join(os.tmpdir(), "og-image-cache");
+const CACHE_DURATION = "1d";
 
 class OgImageHtml {
   constructor(url) {
@@ -92,9 +100,21 @@ class OgImageHtml {
     let stats = await EleventyImage(imageUrl, {
       widths: [maxWidth || "auto"],
       formats: [imageFormat],
+
+      // Required: `dryRun` is what populates `stat.buffer` (which we return as the
+      // response body) instead of writing an output file to a read-only filesystem.
       dryRun: true,
       useCache: false,
+
       cacheOptions: {
+        // eleventy-img propagates its own `dryRun` here, which disables source
+        // caching entirely. Repeat fetches are already deduped in memory, so this
+        // only earns its keep across processes — a new invocation that reuses a
+        // warm instance's temp dir skips the upstream fetch. Still fresher than
+        // the week we serve the optimized result for.
+        dryRun: false,
+        directory: CACHE_DIRECTORY,
+        duration: CACHE_DURATION,
         headers: {
           "User-Agent": USER_AGENT,
         }

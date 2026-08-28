@@ -6,8 +6,11 @@ const FALLBACK_IMAGE_FORMAT = "png";
 const ERROR_URL_SEGMENT = "onerror";
 
 const ONE_MINUTE = 60;
+const FIVE_MINUTES = ONE_MINUTE*5;
 const ONE_DAY = ONE_MINUTE*60*24;
 const ONE_WEEK = ONE_DAY*7;
+
+const MAX_HEADER_LENGTH = 500;
 
 function isFullUrl(url) {
   try {
@@ -17,6 +20,28 @@ function isFullUrl(url) {
     // invalid url OR local path
     return false;
   }
+}
+
+// Header values must be single-line ASCII or the Response constructor will throw,
+// which would turn a useful error message into a 500.
+function sanitizeHeaderValue(message) {
+  let value = `${message ?? ""}`.replace(/[^\x20-\x7E]+/g, " ").trim();
+  if(value.length > MAX_HEADER_LENGTH) {
+    return `${value.slice(0, MAX_HEADER_LENGTH - 3)}...`;
+  }
+  return value;
+}
+
+// Rate limits, upstream outages, and network blips clear on their own, so they should
+// expire quickly. A corrupt or unsupported image won’t fix itself and can cache longer.
+function isTransientFailure(reason) {
+  let status = reason?.cause?.status;
+  if(typeof status === "number") {
+    return status === 408 || status === 425 || status === 429 || status >= 500;
+  }
+
+  // `fetch` itself threw: DNS, TLS, socket hang up, timeout
+  return reason?.cause instanceof Error;
 }
 
 function getEmptyImage() {
@@ -39,7 +64,7 @@ function getLogoImage(message, ttl) {
     status: 200,
     headers: {
       "content-type": "image/svg+xml",
-      "x-11ty-error-message": message,
+      "x-11ty-error-message": sanitizeHeaderValue(message),
       "cache-control": `public, s-maxage=${ttl}, stale-while-revalidate=${ONE_DAY}`
     }
   });
@@ -56,7 +81,7 @@ function getErrorImage(message, ttl) {
     status: 200,
     headers: {
       "content-type": "image/svg+xml",
-      "x-11ty-error-message": message,
+      "x-11ty-error-message": sanitizeHeaderValue(message),
       "cache-control": `public, s-maxage=${ttl}, stale-while-revalidate=${ONE_DAY}`
     }
   });
@@ -157,10 +182,23 @@ export async function GET(request, context) {
 
     if(promises.length === 0) {
       // Had a URL but was invalid/corrupt/missing
+      let reasons = settled.map((p, index) => {
+        let detail = p.status === "rejected" ? (p.reason?.message || `${p.reason}`) : "no image output generated";
+        return `${imageUrls[index]}: ${detail}`;
+      });
+
+      // Don’t pin a rate limit or an upstream blip for a full day
+      let isTransient = settled.some(p => p.status === "rejected" && isTransientFailure(p.reason));
+      let ttl = isTransient ? FIVE_MINUTES : ONE_DAY;
+
+      console.log( "Eligible images found, but were invalid.", url, { isTransient, ttl, reasons } );
+
+      let message = `Eligible images found, but were invalid. ${reasons.join(" ")}`;
+
       if(returnEmptyImageWhenNotFound) {
-        return getErrorImage("Eligible images found, but were invalid.", ONE_DAY);
+        return getErrorImage(message, ttl);
       }
-      return getLogoImage("Eligible images found, but were invalid.", ONE_DAY);
+      return getLogoImage(message, ttl);
     }
 
     let stat = promises[0];
@@ -176,7 +214,7 @@ export async function GET(request, context) {
     });
   } catch (error) {
     console.log("Error", error);
-    return getLogoImage(error.message, ONE_MINUTE * 5);
+    return getLogoImage(error.message, FIVE_MINUTES);
   }
 }
 
