@@ -9,6 +9,8 @@ A runtime service to return optimized Open Graph images from a URL. Works with:
 1. `<meta property="og:image">`
 1. `<meta name="twitter:image">`
 
+GitHub repository URLs skip the page and use GitHub’s own image service.
+
 ## Usage
 
 URLs have the formats:

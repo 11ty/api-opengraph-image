@@ -34,10 +34,14 @@ function sanitizeHeaderValue(message) {
 
 // Rate limits, upstream outages, and network blips clear on their own, so they should
 // expire quickly. A corrupt or unsupported image won’t fix itself and can cache longer.
+function isTransientStatus(status) {
+  return status === 408 || status === 425 || status === 429 || status >= 500;
+}
+
 function isTransientFailure(reason) {
   let status = reason?.cause?.status;
   if(typeof status === "number") {
-    return status === 408 || status === 425 || status === 429 || status >= 500;
+    return isTransientStatus(status);
   }
 
   // `fetch` itself threw: DNS, TLS, socket hang up, timeout
@@ -153,11 +157,15 @@ export async function GET(request, context) {
 
     let imageUrls = await og.getImages();
     if(!imageUrls.length) {
+      // A rate-limited or failing page has no images yet, but might soon.
+      let ttl = isTransientStatus(og.status) ? FIVE_MINUTES : ONE_DAY;
+      let message = `No Open Graph images found for ${url}${og.status >= 400 ? ` (${og.status})` : ""}`;
+
       if(returnEmptyImageWhenNotFound) {
-        return getErrorImage(`No Open Graph images found for ${url}`, ONE_DAY);
+        return getErrorImage(message, ttl);
       }
 
-      return getLogoImage(`No Open Graph images found for ${url}`, ONE_DAY);
+      return getLogoImage(message, ttl);
     }
 
     // TODO: when requests to https://v1.screenshot.11ty.dev/ show an error (the default SVG image)

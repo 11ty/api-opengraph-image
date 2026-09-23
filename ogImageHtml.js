@@ -30,12 +30,34 @@ class OgImageHtml {
     }
   }
 
+  // GitHub’s image host resolves renamed repos itself and skips scraping the page.
+  getGitHubImageUrl() {
+    let u = new URL(this.url);
+    if(u.hostname !== "github.com" && u.hostname !== "www.github.com") {
+      return;
+    }
+
+    let segments = u.pathname.split("/").filter(Boolean);
+    if(segments.length < 2) {
+      return;
+    }
+
+    // The first segment is an arbitrary cache key.
+    return `https://opengraph.githubassets.com/1/${segments.join("/")}`;
+  }
+
   async fetch() {
+    if(this.getGitHubImageUrl()) {
+      return;
+    }
+
     let response = await fetch(this.url, {
       headers: {
         "User-Agent": USER_AGENT,
       }
     });
+    this.status = response.status;
+
     let body = await response.text();
     this.body = body;
 
@@ -91,6 +113,11 @@ class OgImageHtml {
   }
 
   async getImages() {
+    let githubImageUrl = this.getGitHubImageUrl();
+    if(githubImageUrl) {
+      return [githubImageUrl];
+    }
+
     return this.findImageUrls().map(url => {
       return ""+ (new URL(url, this.url));
     });
