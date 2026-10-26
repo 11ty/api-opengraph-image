@@ -126,7 +126,12 @@ class OgImageHtml {
   async optimizeImage(imageUrl, imageFormat, maxWidth) {
     let stats = await EleventyImage(imageUrl, {
       widths: [maxWidth || "auto"],
-      formats: [imageFormat],
+      // Animated sources are filtered down to webp; `api/og.js` uses the first format for static ones.
+      formats: [imageFormat, "webp"],
+
+      sharpOptions: {
+        animated: true,
+      },
 
       // Required: `dryRun` is what populates `stat.buffer` (which we return as the
       // response body) instead of writing an output file to a read-only filesystem.

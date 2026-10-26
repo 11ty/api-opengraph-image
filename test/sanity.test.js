@@ -13,6 +13,16 @@ const SOURCE_PNG = await sharp({
   create: { width: 1200, height: 630, channels: 3, background: "#cc0000" },
 }).png().toBuffer();
 
+function frame(background) {
+  return sharp({ create: { width: 1200, height: 630, channels: 3, background } }).png().toBuffer();
+}
+
+const ANIMATED_GIF = await sharp([await frame("#cc0000"), await frame("#00cc00"), await frame("#0000cc")], {
+  join: { animated: true },
+}).gif().toBuffer();
+
+const STATIC_GIF = await sharp(await frame("#cc0000")).gif().toBuffer();
+
 // Directories eleventy-img would create if it ever stopped running in dryRun.
 // Recorded up front so the suite only ever cleans up what it created itself.
 const GENERATED_DIRS = ["img", ".cache"];
@@ -34,8 +44,8 @@ function pageUrl(mode) {
   return `${origin}/page?mode=${mode}&n=${++pageCount}`;
 }
 
-async function request(url, size = "small") {
-  let res = await GET(new Request(`https://og.test/${encodeURIComponent(url)}/${size}/`));
+async function request(url, size = "small", format = "") {
+  let res = await GET(new Request(`https://og.test/${encodeURIComponent(url)}/${size}/${format}`));
   return {
     contentType: res.headers.get("content-type"),
     error: res.headers.get("x-11ty-error-message"),
@@ -70,6 +80,9 @@ before(async () => {
     if(mode === "ok") {
       res.writeHead(200, { "content-type": "image/png" });
       res.end(SOURCE_PNG);
+    } else if(mode === "animated" || mode === "static-gif") {
+      res.writeHead(200, { "content-type": "image/gif" });
+      res.end(mode === "animated" ? ANIMATED_GIF : STATIC_GIF);
     } else if(mode === "corrupt") {
       res.writeHead(200, { "content-type": "image/png" });
       res.end("plainly not a png");
@@ -111,6 +124,31 @@ describe("open graph image handler", () => {
     let { width, format } = await sharp(body).metadata();
     assert.equal(format, "png");
     assert.equal(width, 375);
+  });
+
+  it("keeps every frame of an animated source", async () => {
+    let { contentType, body } = await request(pageUrl("animated"));
+
+    // PNG can’t animate, so the frames would otherwise be stacked into one tall image.
+    assert.equal(contentType, "image/webp");
+    let { pages, width, pageHeight } = await sharp(body, { animated: true }).metadata();
+    assert.equal(pages, 3);
+    assert.equal(width, 375);
+    assert.equal(pageHeight, 197);
+  });
+
+  it("keeps an animated source in a requested animated format", async () => {
+    let { contentType, body } = await request(pageUrl("animated"), "small", "gif");
+
+    assert.equal(contentType, "image/gif");
+    assert.equal((await sharp(body).metadata()).pages, 3);
+  });
+
+  it("outputs a single-frame gif in the requested format", async () => {
+    let { contentType, body } = await request(pageUrl("static-gif"));
+
+    assert.equal(contentType, "image/png");
+    assert.equal((await sharp(body).metadata()).height, 197);
   });
 
   it("never writes image files into the project", async () => {

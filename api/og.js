@@ -181,7 +181,7 @@ export async function GET(request, context) {
       }
       return false;
     }).map(p => {
-      let format = Object.keys(p.value).pop();
+      let format = Object.keys(p.value).shift();
       return p.value[format][0];
     }).sort((a, b) => {
       // descending
