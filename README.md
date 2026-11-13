@@ -59,3 +59,24 @@ This can be any arbitrary string tied to your unique build, here’s an example 
 /:url/:size/_20210802/
 /:url/:size/:format/_20210802/
 ```
+
+## Use it in your own site
+
+You don’t need to deploy this service separately—install it and run it from your site’s own serverless function.
+
+```
+npm install @11ty/api-opengraph-image@github:11ty/api-opengraph-image
+```
+
+```js
+import OgImageHtml from "@11ty/api-opengraph-image";
+
+let og = new OgImageHtml("https://www.zachleat.com/");
+await og.fetch();
+
+let imageUrls = await og.getImages(); // most preferred first
+let stats = await og.optimizeImage(imageUrls[0], "webp", 1200);
+let { buffer, sourceType } = Object.values(stats)[0][0];
+```
+
+Return that `buffer` with `sourceType` as the `content-type` and you have an image endpoint—[`api/og.js`](./api/og.js) is the reference implementation for URL parsing, error images, and caching headers. Note that `sharp` ships platform-specific binaries, so bundlers need to treat it as external.
