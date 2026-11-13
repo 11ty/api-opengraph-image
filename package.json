@@ -24,10 +24,10 @@
   },
   "homepage": "https://github.com/11ty/api-opengraph-image#readme",
   "dependencies": {
-    "@11ty/eleventy-img": "^7.0.0",
+    "@11ty/eleventy-img": "^7.1.1",
     "cheerio": "^1.2.0"
   },
   "devDependencies": {
-    "vercel": "^59.9.1"
+    "vercel": "^65.15.0"
   }
 }
