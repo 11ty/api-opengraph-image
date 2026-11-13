@@ -4,7 +4,7 @@
   "description": "A runtime service to extract OpenGraph images from the HTML on a web site.",
   "scripts": {
     "start": "npx vercel dev",
-    "test": "node --test \"test/**/*.test.js\""
+    "test": "OG_ALLOW_PRIVATE_URLS=1 node --test \"test/**/*.test.js\""
   },
   "type": "module",
   "main": "./ogImageHtml.js",
@@ -25,7 +25,8 @@
   "homepage": "https://github.com/11ty/api-opengraph-image#readme",
   "dependencies": {
     "@11ty/eleventy-img": "^7.1.1",
-    "cheerio": "^1.2.0"
+    "cheerio": "^1.2.0",
+    "ssrfcheck": "^1.4.0"
   },
   "devDependencies": {
     "vercel": "^65.15.0"

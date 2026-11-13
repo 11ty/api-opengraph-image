@@ -2,6 +2,7 @@ import os from "node:os";
 import path from "node:path";
 import * as cheerio from 'cheerio';
 import EleventyImage from "@11ty/eleventy-img";
+import { isSSRFSafeURL } from "ssrfcheck";
 
 const USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Safari/605.1.15";
 
@@ -10,6 +11,12 @@ const USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/
 // only helps warm instances — which is the point.
 const CACHE_DIRECTORY = path.join(os.tmpdir(), "og-image-cache");
 const CACHE_DURATION = "1d";
+
+// The test suite serves its fixtures from localhost, which the checks below
+// reject. Read lazily so tests can set it before the first request.
+function allowPrivateUrls() {
+  return process.env.OG_ALLOW_PRIVATE_URLS === "1";
+}
 
 class OgImageHtml {
   constructor(url) {
@@ -20,14 +27,15 @@ class OgImageHtml {
     }
   }
 
+  // Rejects invalid urls, local paths, non-http(s) protocols, and literal
+  // private/reserved addresses. `autoPrependProtocol` is off so a bare
+  // `example.com` stays invalid, the way it was before.
   isFullUrl(url) {
-    try {
-      new URL(url);
-      return true;
-    } catch(e) {
-      // invalid url OR local path
-      return false;
+    if(allowPrivateUrls()) {
+      return URL.canParse(url) && ["http:", "https:"].includes(new URL(url).protocol);
     }
+
+    return isSSRFSafeURL(url, { autoPrependProtocol: false });
   }
 
   // GitHub’s image host resolves renamed repos itself and skips scraping the page.
@@ -118,9 +126,10 @@ class OgImageHtml {
       return [githubImageUrl];
     }
 
+    // These come from the (untrusted) page, so they get the same check as the page url.
     return this.findImageUrls().map(url => {
       return ""+ (new URL(url, this.url));
-    });
+    }).filter(url => this.isFullUrl(url));
   }
 
   async optimizeImage(imageUrl, imageFormat, maxWidth) {
