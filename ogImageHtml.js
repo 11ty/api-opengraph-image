@@ -22,12 +22,36 @@ class OgImageHtml {
 
   isFullUrl(url) {
     try {
-      new URL(url);
-      return true;
+      let u = new URL(url);
+      // Only allow http(s) and block requests to loopback, private, link-local,
+      // and cloud metadata addresses to mitigate SSRF via caller-supplied URLs.
+      if(u.protocol !== "http:" && u.protocol !== "https:") {
+        return false;
+      }
+      return !this.isDisallowedHost(u.hostname);
     } catch(e) {
       // invalid url OR local path
       return false;
     }
+  }
+
+  isDisallowedHost(hostname) {
+    let host = hostname.toLowerCase().replace(/^\[|\]$/g, "");
+    if(host === "localhost" || host === "metadata.google.internal") {
+      return true;
+    }
+
+    let m = host.match(/^(\d{1,3})\.(\d{1,3})\.\d{1,3}\.\d{1,3}$/);
+    if(m) {
+      let a = Number(m[1]);
+      let b = Number(m[2]);
+      return a === 127 || a === 10 || a === 0
+        || (a === 169 && b === 254)
+        || (a === 172 && b >= 16 && b <= 31)
+        || (a === 192 && b === 168);
+    }
+
+    return host === "::1" || host.startsWith("fe80:") || host.startsWith("fc") || host.startsWith("fd");
   }
 
   // GitHub’s image host resolves renamed repos itself and skips scraping the page.
